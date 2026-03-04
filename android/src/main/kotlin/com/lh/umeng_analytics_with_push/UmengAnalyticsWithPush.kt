@@ -287,6 +287,20 @@ object UmengAnalyticsWithPush {
             Log.w(TAG, "https://developer.umeng.com/docs/67966/detail/98589#h2--oppo-push-sdk29")
             Log.w(TAG, "*****************************************************")
         }
+
+        // FCM
+        val hasFCM = hasClass("org.android.agoo.fcm.FCMRegister")
+        if (hasFCM ) {
+            org.android.agoo.fcm.FCMRegister.register(
+                context
+            )
+            if (LOG) Log.i(TAG, "FCM is registered")
+        } else {
+            Log.w(TAG, "*****************************************************")
+            Log.w(TAG, "*********** Not found FCM dependencies ***********")
+            Log.w(TAG, "https://developer.umeng.com/docs/67966/detail/98589#9819b670bfsnj")
+            Log.w(TAG, "*****************************************************")
+        }
     }
 
     private fun getUmengAppKey(info: ApplicationInfo): String? {

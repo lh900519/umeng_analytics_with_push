@@ -12,6 +12,8 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:8.13.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        classpath 'com.google.gms:google-services:4.4.4'
     }
 }
 
@@ -26,6 +28,7 @@ rootProject.allprojects {
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 36
@@ -78,4 +81,9 @@ dependencies {
     // Oppo Push 通道
     compileOnly 'com.umeng.umsdk:oppo-push:3.5.3'
     compileOnly 'com.umeng.umsdk:oppo-umengaccs:2.2.0'
+    // FCM Push 通道
+    compileOnly platform('com.google.firebase:firebase-bom:34.10.0')
+    compileOnly 'com.umeng.umsdk:fcm-umengaccs:2.2.0'
+    compileOnly 'com.google.firebase:firebase-analytics'
+    compileOnly 'com.google.firebase:firebase-messaging'
 }
