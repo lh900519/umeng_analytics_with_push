@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.util.Log
+import com.google.firebase.FirebaseApp
 import com.taobao.accs.ACCSClient
 import com.taobao.accs.AccsClientConfig
 import com.taobao.agoo.TaobaoRegister
@@ -291,10 +292,13 @@ object UmengAnalyticsWithPush {
         // FCM
         val hasFCM = hasClass("org.android.agoo.fcm.FCMRegister")
         if (hasFCM ) {
-            org.android.agoo.fcm.FCMRegister.register(
-                context
-            )
-            if (LOG) Log.i(TAG, "FCM is registered")
+            try {
+                FirebaseApp.initializeApp(context)
+                org.android.agoo.fcm.FCMRegister.register(context)
+                if (LOG) Log.i(TAG, "FCM is registered")
+            } catch (e: Exception) {
+                Log.e(TAG, "FCM registered Error: $e")
+            }
         } else {
             Log.w(TAG, "*****************************************************")
             Log.w(TAG, "*********** Not found FCM dependencies ***********")
