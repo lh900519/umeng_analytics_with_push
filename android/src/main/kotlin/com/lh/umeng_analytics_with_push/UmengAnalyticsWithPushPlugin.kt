@@ -20,6 +20,7 @@ import com.ut.device.UTDevice
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -342,7 +343,9 @@ class UmengAnalyticsWithPushPlugin : FlutterPlugin, MethodCallHandler, ActivityA
         //     true
         // }
 
-        lifecycle = binding.lifecycle as Lifecycle?
+        // lifecycle = binding.lifecycle as Lifecycle?
+        val reference = binding.lifecycle as HiddenLifecycleReference
+        lifecycle = reference.lifecycle
         lifecycle!!.addObserver(onLifecycleChanged)
 
         if (LOG) Log.d(TAG, "onAttachedToActivity: ${lifecycle?.currentState}")
