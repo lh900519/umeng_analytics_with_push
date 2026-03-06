@@ -117,9 +117,10 @@ class UmengAnalyticsWithPushPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                                 // manager.createNotificationChannel(chan)
 
                                 val builder: NotificationCompat.Builder
+                                val senderBitmap = getLargeIcon(c, msg)
                                 val sender = Person.Builder()
                                     .setName(msg.title)
-                                    .setIcon(IconCompat.createWithBitmap(getLargeIcon(c, msg)))
+                                    .setIcon(IconCompat.createWithBitmap(senderBitmap))
                                     .setKey(msg.img)
                                     .build()
                                 val message = NotificationCompat.MessagingStyle.Message(
@@ -134,6 +135,7 @@ class UmengAnalyticsWithPushPlugin : FlutterPlugin, MethodCallHandler, ActivityA
 
                                 builder = NotificationCompat.Builder(context, PRIMARY_CHANNEL)
                                     .setSmallIcon(getSmallIconId(c, msg))
+                                    .setLargeIcon(senderBitmap)
                                     .setStyle(messagingStyle)
                                     .setTicker(msg.ticker)
                                     .setContentTitle(msg.title)
