@@ -1,11 +1,16 @@
 package com.lh.umeng_analytics_with_push
 
 import android.app.Activity
+import android.app.Notification
+import androidx.core.app.Person
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.umeng.analytics.MobclickAgent
@@ -15,6 +20,7 @@ import com.umeng.message.PushAgent
 import com.umeng.message.UmengMessageHandler
 import com.umeng.message.UmengNotificationClickHandler
 import com.umeng.message.api.UPushRegisterCallback
+import com.umeng.message.common.UPushNotificationChannel.PRIMARY_CHANNEL
 import com.umeng.message.entity.UMessage
 import com.ut.device.UTDevice
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -25,7 +31,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import org.json.JSONObject
 
 
 /** UmengAnalyticsWithPushPlugin */
@@ -81,7 +86,7 @@ class UmengAnalyticsWithPushPlugin : FlutterPlugin, MethodCallHandler, ActivityA
 
                 PushAgent.getInstance(context).messageHandler = object : UmengMessageHandler() {
                     override fun dealWithNotificationMessage(c: Context?, msg: UMessage?) {
-                        Log.d(TAG, "收到消息 ${msg?.extra}")
+                        Log.d(TAG, "收到消息1 ${msg?.raw}")
 
 
                         Handler(Looper.getMainLooper()).post {
@@ -89,6 +94,60 @@ class UmengAnalyticsWithPushPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                         }
 
                         super.dealWithNotificationMessage(c, msg)
+                    }
+
+                    override fun getNotification(c: Context?, msg: UMessage?): Notification? {
+                        Log.d(TAG, "收到消息2 ${msg?.builder_id} ${msg?.raw}")
+                        when(msg?.builder_id) {
+                            1 -> {
+                                Log.d(TAG, "收到消息3 ${msg.builder_id} ${msg.raw}")
+                                if (Build.VERSION.SDK_INT < 30) {
+                                    // 不支持 MessagingStyle
+                                    return super.getNotification(c, msg);
+                                }
+
+                                // val chan = NotificationChannel(
+                                //     PRIMARY_CHANNEL,
+                                //     PushAgent.getInstance(context).notificationChannelName,
+                                //     NotificationManager.IMPORTANCE_DEFAULT
+                                // )
+                                // val manager = context.getSystemService(
+                                //     Context.NOTIFICATION_SERVICE
+                                // ) as NotificationManager
+                                // manager.createNotificationChannel(chan)
+
+                                val builder: NotificationCompat.Builder
+                                val sender = Person.Builder()
+                                    .setName(msg.title)
+                                    .setIcon(IconCompat.createWithBitmap(getLargeIcon(c, msg)))
+                                    .setKey(msg.img)
+                                    .build()
+                                val message = NotificationCompat.MessagingStyle.Message(
+                                    msg.content,
+                                    msg.msgTime,
+                                    sender
+                                )
+                                val messagingStyle = NotificationCompat.MessagingStyle(sender)
+                                    // .setConversationTitle(msg.title)           // 显示在通知顶部
+                                    .setGroupConversation(false)               // 单聊设 false
+                                    .addMessage(message)
+
+                                builder = NotificationCompat.Builder(context, PRIMARY_CHANNEL)
+                                    .setSmallIcon(getSmallIconId(c, msg))
+                                    .setStyle(messagingStyle)
+                                    .setTicker(msg.ticker)
+                                    .setContentTitle(msg.title)
+                                    .setContentTitle(msg.content)
+                                    .setPriority(NotificationCompat.PRIORITY_HIGH)   // 建议加高优先级
+                                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+
+                                return  builder.build()
+                            }
+                            else -> {
+                                //默认为0，若填写的builder_id并不存在，也使用默认。
+                                return super.getNotification(c, msg);
+                            }
+                        }
                     }
                 }
 
